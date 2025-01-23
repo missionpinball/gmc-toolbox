@@ -1,7 +1,7 @@
 @tool
 extends Control
 
-const CONFIG_PATH = "user://mpf_show_creator.cfg"
+const CONFIG_PATH = "res://mpf_show_creator.cfg"
 const DEFAULT_SHOW =  "res://show_creator.tscn"
 
 var config: ConfigFile
@@ -175,6 +175,9 @@ func _get_animation_names():
 		debug_log("No show scene selected, cannot find animations.")
 		return
 	var scene = load(edit_show_scene.text).instantiate()
+	if not scene.animation_player:
+		debug_log("No animation player attached to scene, animations unavailable.")
+		return
 	var animp = scene.animation_player
 	var animations = animp.get_animation_list()
 	if animations.has("RESET"):

@@ -1,10 +1,10 @@
 @tool
-extends Sprite2D
+extends TextureRect
 class_name MPFShowCreator
 
 ## The root node for creating light shows for MPF.
 
-const CONFIG_PATH = "user://mpf_show_creator.cfg"
+const CONFIG_PATH = "res://mpf_show_creator.cfg"
 
 var _light_color: Color
 
@@ -20,6 +20,7 @@ var _light_color: Color
 		return _light_color
 
 var lights = []
+var switches = []
 var spf: float
 var file: FileAccess
 var file_path: String
@@ -36,7 +37,8 @@ var preview: Dictionary
 var render_animation: bool = true
 
 func _enter_tree():
-	if Engine.is_editor_hint() or (self.get_parent() is MPFShowPreview):
+	self.stretch_mode = StretchMode.STRETCH_KEEP_ASPECT_CENTERED
+	if Engine.is_editor_hint() or (self.get_parent() is MPFShowPreview) or (self.get_parent() is MPFMonitor):
 		render_animation = false
 	if not render_animation:
 		return
@@ -67,8 +69,8 @@ func _ready():
 	assert(animation_player, "No AnimationPlayer node attached to the MPFShowGenerator root.")
 	assert(animation_player.has_animation(animation_name), "AnimationPlayer has no animation named '%s'" % animation_name)
 
-	ProjectSettings.set_setting("display/window/size/window_width_override", self.texture.get_width())
-	ProjectSettings.set_setting("display/window/size/window_height_override", self.texture.get_height())
+	# ProjectSettings.set_setting("display/window/size/window_width_override", self.texture.get_width())
+	# ProjectSettings.set_setting("display/window/size/window_height_override", self.texture.get_height())
 
 
 	if not self.lights:
@@ -123,6 +125,22 @@ func register_light(light: MPFShowLight):
 		if not has_match:
 			return
 	self.lights.append(light)
+
+func register_switch(switch: MPFShowSwitch):
+	if switch.position.x < 0 or switch.position.y < 0 or switch.position.x > self.texture.get_width() or switch.position.y > self.texture.get_height():
+		# In the editor, include all switchs
+		if not Engine.is_editor_hint():
+			push_warning("Switch %s is outside of the viewport and will not be included." % switch.name)
+			return
+	if self.tags and switch.tags:
+		var has_match = false
+		for t in self.tags:
+			if switch.tags.find(t) != -1:
+				has_match = true
+				break
+		if not has_match:
+			return
+	self.switches.append(switch)
 
 func snapshot():
 	var tex := get_viewport().get_texture().get_image()

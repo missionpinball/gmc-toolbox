@@ -1,15 +1,15 @@
 [gd_scene load_steps=5 format=3 uid="uid://b4tyyjcjwxj7d"]
 
-[ext_resource type="Script" path="res://addons/mpf-show-creator/mpf_show_creator_dock.gd" id="1_ainif"]
+[ext_resource type="Script" path="res://addons/mpf-show-creator/show_creator_dock.gd" id="1_k2nso"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ln2sr"]
 bg_color = Color(0.188235, 0.188235, 0.188235, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rfgoc"]
-bg_color = Color(0.913725, 0.352941, 0, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x17sv"]
 bg_color = Color(1, 0.462745, 0.219608, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rfgoc"]
+bg_color = Color(0.913725, 0.352941, 0, 1)
 
 [node name="MPFShowCreatorDock" type="Control"]
 custom_minimum_size = Vector2(2.08165e-12, 200)
@@ -21,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-script = ExtResource("1_ainif")
+script = ExtResource("1_k2nso")
 
 [node name="MainVContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -44,32 +44,17 @@ custom_minimum_size = Vector2(2.08165e-12, 2.08165e-12)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="container_mpf_config" type="HBoxContainer" parent="MainVContainer/TopHContainer/LeftVContainer"]
-layout_mode = 2
-
-[node name="label_mpf_config" type="Label" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_config"]
-layout_mode = 2
-text = "MPF Config File"
-
-[node name="edit_mpf_config" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_config"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "No File Selected"
-
-[node name="button_mpf_config" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_config"]
-layout_mode = 2
-text = "Select File"
-
 [node name="container_show_scene" type="HBoxContainer" parent="MainVContainer/TopHContainer/LeftVContainer"]
 layout_mode = 2
 
 [node name="label_show_scene" type="Label" parent="MainVContainer/TopHContainer/LeftVContainer/container_show_scene"]
 layout_mode = 2
-text = "Show Scene"
+text = "ShowCreator Scene"
 
 [node name="edit_show_scene" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_show_scene"]
 layout_mode = 2
 size_flags_horizontal = 3
+text = "res://monitor/playfield.tscn"
 placeholder_text = "No Scene Selected"
 
 [node name="button_show_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_show_scene"]
@@ -93,6 +78,7 @@ text = "  Save Light Positions  "
 [node name="button_generate_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
 visible = false
 layout_mode = 2
+disabled = true
 text = "  Generate Show Creator Scene  "
 
 [node name="Control" type="Control" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
@@ -189,7 +175,6 @@ text = "Animation to Generate:"
 
 [node name="button_animation_names" type="OptionButton" parent="MainVContainer/TopHContainer/RightVContainer"]
 layout_mode = 2
-selected = 1
 
 [node name="Control" type="Control" parent="MainVContainer/TopHContainer/RightVContainer"]
 custom_minimum_size = Vector2(2.08165e-12, 20)
@@ -197,9 +182,10 @@ layout_mode = 2
 
 [node name="button_generate_show" type="Button" parent="MainVContainer/TopHContainer/RightVContainer"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_rfgoc")
 theme_override_styles/hover = SubResource("StyleBoxFlat_x17sv")
-text = "GENERATE 
+theme_override_styles/normal = SubResource("StyleBoxFlat_rfgoc")
+disabled = true
+text = "GENERATE
 SHOW"
 
 [node name="Control2" type="Control" parent="MainVContainer/TopHContainer/RightVContainer"]

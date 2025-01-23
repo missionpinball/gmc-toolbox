@@ -1,6 +1,6 @@
 @tool
 extends Sprite2D
-class_name MPFShowLight
+class_name GMCLight
 
 const PLAYFIELD_WIDTH_INCHES = 20.25
 const INSERT_DPI = 150
@@ -85,14 +85,14 @@ func _notification(what):
 		self.update_configuration_warnings()
 
 func scale_to_inches():
-	var path: String
+	var path: String = get_script().resource_path.get_base_dir()
 	match self.shape:
 		InsertShapes.CIRCLE:
-			path = "res://addons/mpf-show-creator/inserts/circle-insert.svg"
+			path += "/inserts/circle-insert.svg"
 		InsertShapes.SQUARE:
-			path = "res://addons/mpf-show-creator/inserts/square-insert.svg"
+			path += "/inserts/square-insert.svg"
 		InsertShapes.LONG_TRIANGLE:
-			path = "res://addons/mpf-show-creator/inserts/long-triangle-insert.svg"
+			path += "/inserts/long-triangle-insert.svg"
 		InsertShapes.CUSTOM:
 			return
 		_:

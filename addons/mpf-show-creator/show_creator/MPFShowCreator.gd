@@ -77,7 +77,7 @@ func _ready():
 		if self.tags:
 			assert(false, "No lights found matching the selected groups.")
 		else:
-			assert(false, "No lights found. Please add some MPFShowLight nodes.")
+			assert(false, "No lights found. Please add some GMCLight nodes.")
 
 	self.spf = 1.0 / self.fps
 	self.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
@@ -110,7 +110,7 @@ func _run_animation():
 		self.snapshot()
 		self.animation_player.advance(self.spf)
 
-func register_light(light: MPFShowLight):
+func register_light(light: GMCLight):
 	if light.position.x < 0 or light.position.y < 0 or light.position.x > self.texture.get_width() or light.position.y > self.texture.get_height():
 		# In the editor, include all lights
 		if not Engine.is_editor_hint():
@@ -126,7 +126,7 @@ func register_light(light: MPFShowLight):
 			return
 	self.lights.append(light)
 
-func register_switch(switch: MPFShowSwitch):
+func register_switch(switch: GMCSwitch):
 	if switch.position.x < 0 or switch.position.y < 0 or switch.position.x > self.texture.get_width() or switch.position.y > self.texture.get_height():
 		# In the editor, include all switchs
 		if not Engine.is_editor_hint():

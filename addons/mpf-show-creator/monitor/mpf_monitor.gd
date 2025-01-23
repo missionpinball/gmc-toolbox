@@ -25,8 +25,9 @@ func _enter_tree() -> void:
 	var scene_path = config.get_value("show_creator", "show_scene")
 	scene = load(scene_path).instantiate()
 	self.add_child(scene)
-	server = preload("res://addons/mpf-show-creator/classes/monitor_server.gd").new()
+	server = preload("monitor_server.gd").new()
 	self.add_child(server)
+	print("MONITOR IS HERE")
 
 func _ready():
 	server.switch.connect(self._on_switch)

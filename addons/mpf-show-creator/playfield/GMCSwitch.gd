@@ -1,13 +1,14 @@
 @tool
 
 extends TextureButton
-class_name MPFShowSwitch
+class_name GMCSwitch
 
 @export var tags: Array
 var server
 
 func _enter_tree():
-    self.texture_normal = preload("res://addons/mpf-show-creator/icons/TabBar.svg")
+    self.texture_normal = preload("./icons/TabBar.svg")
+    self.stretch_mode = StretchMode.STRETCH_KEEP_ASPECT
 
 func _ready():
     var parent = self.get_parent()

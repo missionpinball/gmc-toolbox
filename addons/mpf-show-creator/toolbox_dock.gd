@@ -30,7 +30,7 @@ func _ready():
 	if self.config.has_section("show_creator"):
 		for group in ["lights", "switches"]:
 			if self.config.has_section_key("show_creator", "mpf_%s_config" % group):
-				self["edit_mpf_%s_config" % group].text = self.config.get_value("show_creator", "mpf_config_%s" % group)
+				self["edit_mpf_%s_config" % group].text = self.config.get_value("show_creator", "mpf_%s_config" % group)
 				if self["edit_mpf_%s_config" % group].text:
 					debug_log("Found MPF %s config file '%s'" % [group, self["edit_mpf_%s_config" % group].text])
 					self.parse_mpf_config(group)
@@ -43,8 +43,8 @@ func _ready():
 				self._save_playfield_scene("")
 
 	# Set the listeners *after* the initial values are set
-	button_mpf_lights_config.pressed.connect(self._select_mpf_config.bind("lights"))
-	button_mpf_switches_config.pressed.connect(self._select_mpf_config.bind("switches"))
+	button_mpf_lights_config.pressed.connect(Callable(self._select_mpf_config).bind("lights"))
+	button_mpf_switches_config.pressed.connect(Callable(self._select_mpf_config).bind("switches"))
 	button_playfield_scene.pressed.connect(self._select_playfield_scene)
 	button_generate_lights.pressed.connect(self._generate.bind("lights"))
 	button_generate_switches.pressed.connect(self._generate.bind("switches"))
@@ -179,7 +179,7 @@ func _generate_scene():
 
 
 func _select_mpf_config(section: String):
-	print("Select MPF config for %s" % section)
+	push_error("Select MPF config for %s" % section)
 	var dialog = FileDialog.new()
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_FILESYSTEM
@@ -189,7 +189,7 @@ func _select_mpf_config(section: String):
 	self._save_mpf_config(path, section)
 
 func _save_mpf_config(path, section):
-	self.config.set_value("show_creator", "mpf_config_%s" % section, path)
+	self.config.set_value("show_creator", "mpf_%s_config" % section, path)
 	self["edit_mpf_%s_config" % section].text = path
 	self.config.save(CONFIG_PATH)
 	if path:
@@ -220,7 +220,7 @@ func parse_mpf_config(section_name: String):
 	var mpf_config = FileAccess.open(self["edit_mpf_%s_config" % section_name].text, FileAccess.READ)
 	var line = mpf_config.get_line()
 	var is_in_section = false
-	var current_light: String
+	var current_item: String
 	var delimiter: String
 	var delimiter_size: int
 	while mpf_config.get_position() < mpf_config.get_length():
@@ -246,15 +246,16 @@ func parse_mpf_config(section_name: String):
 			var line_data = line_stripped.split(":")
 			var indent_check = line.substr(delimiter_size).length() - line.strip_edges(true, false).length()
 			var collection = self[section_name]
-			var current_item = line_data[0]
 			# If the check is zero, there is one delimiter and this is a new item
 			if indent_check == 0:
+				current_item = line_data[0]
 				debug_log(" - Found a %s '%s'" % [section_name, current_item])
 				collection[current_item] = { "tags": []}
 			# If the check is larger, there is more than a delimiter and this is part of the item
 			elif indent_check > 0:
 				# Clear out any inline comments and extra whitespace
 				if line_data[0] == "tags":
+					debug_log("Trying to set tags on item %s" % collection[current_item])
 					for t in line_data[1].split(","):
 						var tag = t.strip_edges()
 						if not self.tags.has(tag):
@@ -269,4 +270,4 @@ func parse_mpf_config(section_name: String):
 
 func debug_log(message: String):
 	if verbose:
-		print(message)
+		print_debug(message)

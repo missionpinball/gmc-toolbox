@@ -1,4 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4tyyjcjwxj7d"]
+[gd_scene load_steps=5 format=3 uid="uid://b4tyyjcjwxj7d"]
+
+[ext_resource type="Script" path="res://addons/mpf-show-creator/toolbox_dock.gd" id="1_ufccj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ln2sr"]
 bg_color = Color(0.188235, 0.188235, 0.188235, 1)
@@ -19,6 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("1_ufccj")
 
 [node name="MainVContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -51,7 +54,7 @@ text = "MPF lights: Config File"
 [node name="edit_mpf_lights_config" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "/Users/Anthony/Git/bmo-game/config/config.yaml"
+text = "/Users/Anthony/Git/bmo-game/config/config_lights.yaml"
 placeholder_text = "No File Selected"
 
 [node name="button_mpf_lights_config" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config"]
@@ -68,7 +71,7 @@ text = "MPF switches: Config File"
 [node name="edit_mpf_switches_config" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_switches_config"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "/Users/Anthony/Git/bmo-game/config/config.yaml"
+text = "/Users/Anthony/Git/bmo-game/config/config_switches.yaml"
 placeholder_text = "No File Selected"
 
 [node name="button_mpf_switches_config" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_switches_config"]
@@ -85,7 +88,6 @@ text = "GMCPlayfield Scene"
 [node name="edit_playfield_scene" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "res://monitor/playfield.tscn"
 placeholder_text = "No Scene Selected"
 
 [node name="button_playfield_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene"]
@@ -106,23 +108,9 @@ text = "  Generate Lights to Playfield Scene "
 layout_mode = 2
 text = "  Generate Switches to Playfield Scene "
 
-[node name="button_save_light_positions" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
-layout_mode = 2
-text = "  Save Light Positions  "
-
-[node name="button_generate_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
-visible = false
-layout_mode = 2
-disabled = true
-text = "  Generate Show Creator Scene  "
-
 [node name="Control" type="Control" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="button_refresh_animations" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_generators"]
-layout_mode = 2
-text = "Refresh Animations"
 
 [node name="HSeparator2" type="HSeparator" parent="MainVContainer/TopHContainer/LeftVContainer"]
 layout_mode = 2

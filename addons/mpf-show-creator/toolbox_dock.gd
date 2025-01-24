@@ -16,6 +16,7 @@ var verbose: bool = true
 @onready var edit_mpf_switches_config = $MainVContainer/TopHContainer/LeftVContainer/container_mpf_switches_config/edit_mpf_switches_config
 @onready var button_playfield_scene = $MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene/button_playfield_scene
 @onready var edit_playfield_scene = $MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene/edit_playfield_scene
+@onready var button_launch_monitor = $MainVContainer/TopHContainer/RightVContainer/button_launch_monitor
 
 @onready var button_generate_lights = $MainVContainer/TopHContainer/LeftVContainer/container_generators/button_generate_lights
 @onready var button_generate_switches = $MainVContainer/TopHContainer/LeftVContainer/container_generators/button_generate_switches
@@ -51,7 +52,7 @@ func _ready():
 	edit_mpf_lights_config.text_submitted.connect(self._save_mpf_config.bind("lights"))
 	edit_mpf_switches_config.text_submitted.connect(self._save_mpf_config.bind("switches"))
 	edit_playfield_scene.text_submitted.connect(self._save_playfield_scene)
-
+	button_launch_monitor.pressed.connect(self._launch_monitor)
 
 func _generate(group, parent_node: Control = null):
 	if self[group].is_empty():
@@ -100,6 +101,9 @@ func _generate(group, parent_node: Control = null):
 		return
 
 	EditorInterface.reload_scene_from_path(edit_playfield_scene.text)
+
+func _launch_monitor():
+	OS.create_process(OS.get_executable_path(), ["addons/mpf-show-creator/monitor/mpf_monitor.tscn"])
 
 func _save_light_positions():
 	EditorInterface.save_scene()

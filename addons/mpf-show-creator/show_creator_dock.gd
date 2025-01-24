@@ -42,12 +42,6 @@ func _ready():
 		if self.config.has_section_key("show_creator", "verbose"):
 			button_verbose.button_pressed = self.config.get_value("show_creator", "verbose")
 			verbose = button_verbose.button_pressed
-		for group in ["lights", "switches"]:
-			if self.config.has_section_key("show_creator", "mpf_%s_config" % group):
-				self["edit_mpf_%s_config" % group].text = self.config.get_value("show_creator", "mpf_config_%s" % group)
-				if self["edit_mpf_%s_config" % group].text:
-					debug_log("Found MPF %s config file '%s'" % [group, self["edit_mpf_%s_config" % group].text])
-					self.parse_mpf_config(group)
 		if self.config.has_section_key("show_creator", "show_scene"):
 			var scene_path = self.config.get_value("show_creator", "show_scene")
 			if FileAccess.file_exists(scene_path):

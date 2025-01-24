@@ -68,7 +68,7 @@ func _on_light(payload):
 		printerr("Unknown light named '%s'" % payload.name)
 		return
 	var colors = payload.state.color
-	self.lights[payload.name].set_color(Color(colors[0], colors[1], colors[2]))
+	self.lights[payload.name].set_color(Color(colors[0] / 255, colors[1] / 255, colors[2] / 255))
 
 func _on_switch(payload):
 	if not payload.name in self.switches:

@@ -27,7 +27,18 @@ func _enter_tree() -> void:
 	self.add_child(scene)
 	server = preload("monitor_server.gd").new()
 	self.add_child(server)
-	print("MONITOR IS HERE")
+
+	if not Engine.is_editor_hint():
+		# Ignore the project settings, use the playfield scene
+		# as the basis for the window size
+		var window = get_window()
+		var resize = scene.size
+		if scene.monitor_size != Vector2(0,0):
+			resize = scene.monitor_size
+		window.size = resize
+		window.content_scale_size = scene.size
+		window.unresizable = false
+		window.title = "MPF Monitor - %s" % ProjectSettings.get_setting("application/config/name")
 
 func _ready():
 	server.switch.connect(self._on_switch)

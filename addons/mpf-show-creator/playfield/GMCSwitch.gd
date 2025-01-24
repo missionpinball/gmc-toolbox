@@ -12,31 +12,30 @@ func _enter_tree():
 
 func _ready():
     var parent = self.get_parent()
-    self.visible = Engine.is_editor_hint()
     while parent:
         if parent is MPFShowCreator:
             parent.register_switch(self)
+            self.visible = false
+            break
         elif parent is MPFMonitor:
             self.visible = true
+            parent.register_switch(self)
             server = parent.server
+            break
         parent = parent.get_parent()
 
-    self.gui_input.connect(self.on_input)
-
-func on_input(event):
+func _gui_input(event):
     if not event is InputEventMouseButton:
         return
-    print("INPUT: %s" % event)
     # Ctrl+click to lock switch on
-    var is_pressed = true if event.ctrl_pressed else event.pressed
-    server.send_switch(self.name, 1 if is_pressed else 0)
-    self.set_switch_state(is_pressed)
+    var do_press = true if event.ctrl_pressed else event.pressed
+    if server:
+        server.send_switch(self.name, 1 if do_press else 0)
+    self.set_switch_state(do_press)
 
-func set_switch_state(is_pressed: bool) -> void:
-    if is_pressed:
+func set_switch_state(do_press: bool) -> void:
+    if do_press:
         self.modulate = Color(0.0, 1.0, 0.0)
     else:
         self.modulate = Color(1.0, 1.0, 1.0)
-    self.button_pressed = is_pressed
-
-
+    self.button_pressed = do_press

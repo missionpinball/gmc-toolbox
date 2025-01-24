@@ -97,10 +97,8 @@ func _process(delta: float) -> void:
 			"reset":
 				print("Resetting connection with BCP client")
 				_send("reset_complete")
-
-			_:
-				push_warning("No handler defined for BCP action %s", message_raw)
-
+			"shutdown":
+				call_deferred("disconnect_client")
 
 
 ###

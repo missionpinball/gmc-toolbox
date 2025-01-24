@@ -33,17 +33,19 @@ func _ready():
 	self.scale_to_inches()
 	if Engine.is_editor_hint():
 		self.set_notify_transform(true)
-	# If not in editor, make it invisible
-	else:
-		self.visible = false
+
+	# Look for a parent to register with
 	var parent = self.get_parent()
 	while parent:
-		# For the parent MPFShowCreator, register the light
+		# For the parent MPFShowCreator, register the light and hide it
 		if parent is MPFShowCreator:
 			parent.register_light(self)
+			self.visible = false
+			break
 		# For a parent MPFShowPreview or MPFMonitor, it's visible
-		elif parent is MPFShowPreview or parent is MPFMonitor:
-			self.visible = true
+		elif parent is MPFMonitor:
+			parent.register_light(self)
+			break
 		parent = parent.get_parent()
 
 

@@ -28,20 +28,22 @@ func _enter_tree() -> void:
 	server = preload("monitor_server.gd").new()
 	self.add_child(server)
 
-	if not Engine.is_editor_hint():
-		# Ignore the project settings, use the playfield scene
-		# as the basis for the window size
-		var window = get_window()
-		var resize = scene.size
-		if scene.monitor_size != Vector2(0,0):
-			resize = scene.monitor_size
-		window.size = resize
-		window.content_scale_size = scene.size
-		window.unresizable = false
-		window.title = "MPF Monitor - %s" % ProjectSettings.get_setting("application/config/name")
-		var icon = Image.new()
-		icon.load("res://addons/mpf-show-creator/icons/icon-osx.png")
-		DisplayServer.set_icon(icon)
+	# Everything from here on out is for runtime
+	if Engine.is_editor_hint():
+		return
+
+	# Ignore the project settings, use the playfield scene
+	# as the basis for the window size
+	var window = get_window()
+	var resize = scene.size
+	if scene.monitor_size != Vector2(0,0):
+		resize = scene.monitor_size
+	window.size = resize
+	window.content_scale_size = scene.size
+	window.unresizable = false
+	window.title = "MPF Monitor - %s" % ProjectSettings.get_setting("application/config/name")
+	var icon = Image.load_from_file("res://addons/mpf-show-creator/icons/icon-osx.png")
+	DisplayServer.set_icon(icon)
 
 func _ready():
 	server.switch.connect(self._on_switch)
@@ -52,12 +54,14 @@ func _ready():
 	server.update_modes.connect(self._update_modes)
 	server.player_added.connect(self._add_player)
 
-	for l in scene.lights:
-		self.lights[l.name] = l
+	for l in scene.lights.values():
 		l.set_color(Color(0.0,0.0,0.0))
-	for s in scene.switches:
-		self.switches[s.name] = s
 
+func register_light(light: GMCLight):
+	self.lights[light.name] = light
+
+func register_switch(switch: GMCSwitch):
+	self.switches[switch.name] = switch
 
 func _on_light(payload):
 	if not payload.name in self.lights:
@@ -67,7 +71,6 @@ func _on_light(payload):
 	self.lights[payload.name].set_color(Color(colors[0], colors[1], colors[2]))
 
 func _on_switch(payload):
-	print("SWITCH: %s" % payload)
 	if not payload.name in self.switches:
 		printerr("Unknown switch named '%s'" % payload.name)
 		return

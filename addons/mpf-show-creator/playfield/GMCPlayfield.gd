@@ -8,11 +8,5 @@ var switches = {}
 
 func _enter_tree() -> void:
 	self.expand_mode = ExpandMode.EXPAND_IGNORE_SIZE
-
-func _ready() -> void:
-	for required_child in ["lights", "switches"]:
-		if not self.get_node_or_null(required_child):
-			var l = Control.new()
-			l.name = required_child
-			l.set_anchors_preset(LayoutPreset.PRESET_FULL_RECT)
-			self.add_child(l)
+	# Prevent GMC from blocking inputs to allow switch presses
+	MPF.ignore_input()

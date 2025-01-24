@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://dibbl3slebtcj"]
+
+[ext_resource type="Script" path="res://addons/mpf-show-creator/show_creator/MPFShowCreator.gd" id="1_nysxh"]
+[ext_resource type="PackedScene" uid="uid://bgshkme87go7v" path="res://monitor/playfield.tscn" id="2_0gea0"]
+
+[node name="MpfShowCreator" type="AspectRatioContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1840.0
+offset_bottom = 920.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nysxh")
+
+[node name="GMCPlayfield" parent="." instance=ExtResource("2_0gea0")]
+layout_mode = 2

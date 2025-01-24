@@ -1,5 +1,5 @@
 @tool
-extends TextureRect
+extends AspectRatioContainer
 class_name MPFShowCreator
 
 ## The root node for creating light shows for MPF.
@@ -32,23 +32,27 @@ var strip_unchanged_lights
 var strip_empty_times
 var use_alpha
 var fps
+var playfield_scene: Node
 
 var preview: Dictionary
-var render_animation: bool = true
+var render_animation: bool = false
 
 func _enter_tree():
-	self.stretch_mode = StretchMode.STRETCH_KEEP_ASPECT_CENTERED
-	if Engine.is_editor_hint() or (self.get_parent() is MPFShowPreview) or (self.get_parent() is MPFMonitor):
-		render_animation = false
-	if not render_animation:
-		return
-
 	# Need to get the tags before ready state so we know whether to include lights
 	config = ConfigFile.new()
 	var err = config.load(CONFIG_PATH)
 	if err != OK and err != ERR_FILE_NOT_FOUND:
 		assert(false, "Error loading config file: %s" % err)
 		return
+
+	var scene_path = config.get_value("show_creator", "show_scene")
+	playfield_scene = load(scene_path).instantiate()
+	self.add_child(playfield_scene)
+	if self.name == "MPFShowCreator":
+		render_animation = true
+	if not render_animation:
+		return
+
 	if config.has_section("show_creator") and config.has_section_key("show_creator", "animation"):
 			animation_name = config.get_value("show_creator", "animation")
 
@@ -61,16 +65,23 @@ func _enter_tree():
 
 func _ready():
 	set_process(false)
+
+	var window = get_window()
+	window.size = playfield_scene.size
+	window.unresizable = true
+	window.title = "MPF Show Creator - %s" % ProjectSettings.get_setting("application/config/name")
+
 	if not render_animation:
 		return
 
-	assert(self.texture, "MPFShowCreator node requires a playfield image as a texture.")
+	assert(self.playfield_scene, "MPFShowCreator node requires a playfield scene as a texture.")
 	assert(animation_name, "No animation name found in configuration.")
-	assert(animation_player, "No AnimationPlayer node attached to the MPFShowGenerator root.")
+	animation_player = self.playfield_scene.animation_player
+	assert(animation_player, "No AnimationPlayer node attached to the GMCPlayfield root.")
 	assert(animation_player.has_animation(animation_name), "AnimationPlayer has no animation named '%s'" % animation_name)
 
-	# ProjectSettings.set_setting("display/window/size/window_width_override", self.texture.get_width())
-	# ProjectSettings.set_setting("display/window/size/window_height_override", self.texture.get_height())
+	# ProjectSettings.set_setting("display/window/size/window_width_override", self.playfield_scene.size.x)
+	# ProjectSettings.set_setting("display/window/size/window_height_override", self.playfield_scene.size.y)
 
 
 	if not self.lights:
@@ -111,7 +122,8 @@ func _run_animation():
 		self.animation_player.advance(self.spf)
 
 func register_light(light: GMCLight):
-	if light.position.x < 0 or light.position.y < 0 or light.position.x > self.texture.get_width() or light.position.y > self.texture.get_height():
+	print("Light %s has position %s" % [light, light.position])
+	if light.position.x < 0 or light.position.y < 0 or light.position.x > self.playfield_scene.size.x or light.position.y > self.playfield_scene.size.y:
 		# In the editor, include all lights
 		if not Engine.is_editor_hint():
 			push_warning("Light %s is outside of the viewport and will not be included." % light.name)
@@ -127,7 +139,7 @@ func register_light(light: GMCLight):
 	self.lights.append(light)
 
 func register_switch(switch: GMCSwitch):
-	if switch.position.x < 0 or switch.position.y < 0 or switch.position.x > self.texture.get_width() or switch.position.y > self.texture.get_height():
+	if switch.position.x < 0 or switch.position.y < 0 or switch.position.x > self.playfield_scene.size.x or switch.position.y > self.playfield_scene.size.y:
 		# In the editor, include all switchs
 		if not Engine.is_editor_hint():
 			push_warning("Switch %s is outside of the viewport and will not be included." % switch.name)

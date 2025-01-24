@@ -8,7 +8,7 @@ var config: ConfigFile
 var lights: = {}
 var switches: = {}
 var tags: = {}
-var verbose: bool = true
+var verbose: bool = false
 
 @onready var button_mpf_lights_config = $MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config/button_mpf_lights_config
 @onready var edit_mpf_lights_config = $MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config/edit_mpf_lights_config
@@ -89,7 +89,7 @@ func _generate(group, parent_node: Control = null):
 		# Tags may have changed, so set that even on existing lights
 		item_child.tags = self[group][i].tags
 
-	debug_log("Added %s lights to the scene %s" % [parent_node.get_child_count(), edit_playfield_scene.text])
+	debug_log("Added %s %s to the scene %s" % [parent_node.get_child_count(), group, edit_playfield_scene.text])
 	var pckscene = PackedScene.new()
 	var result = pckscene.pack(scene)
 	if result != OK:

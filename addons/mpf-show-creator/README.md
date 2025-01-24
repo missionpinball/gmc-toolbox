@@ -4,7 +4,7 @@ The Godot MPF Show Creator is a tool for generating pinball light shows on machi
 
 # Installation and Setup
 
-To use this tool, you will need an image of your playfield and the Godot editor version 4.2 or later (download from [godotengine.org](https://godotengine.org)). If your image is named `playfield.png` or `playfield.jpg` (all lowercase), that will save you a step down the road.
+To use this tool, you will need an image of your playfield and the Godot editor version 4.3 or later (download from [godotengine.org](https://godotengine.org)).
 
 Download a ZIP of this repository from the [main repository page](https://github.com/missionpinball/mpf-gmc) by clicking the green **Code** button and *Download ZIP*. Extract the ZIP file in a convenient location.
 

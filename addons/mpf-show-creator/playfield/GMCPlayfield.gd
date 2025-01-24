@@ -6,15 +6,19 @@ class_name GMCPlayfield
 var lights = {}
 var switches = {}
 
+func _init() -> void:
+	print("INITIAOLIZING PLAYFIELD at %s" % self.size)
+	print(self.get_children())
+
 func _enter_tree() -> void:
-	self.expand_mode = ExpandMode.EXPAND_IGNORE_SIZE
+	var parent = self.get_parent()
+	while parent:
+		if parent is MPFMonitor:
+			self.expand_mode = ExpandMode.EXPAND_IGNORE_SIZE
+			break
+		if parent is MPFShowCreator or parent is MPFShowPreview:
+			self.expand_mode = ExpandMode.EXPAND_KEEP_SIZE
+			break
+		parent = parent.get_parent()
 	# Prevent GMC from blocking inputs to allow switch presses
 	MPF.ignore_input()
-
-func _ready() -> void:
-	# If no animation player is specified, look for a first-level child
-	if not animation_player:
-		for c in self.get_children():
-			if c is AnimationPlayer:
-				animation_player = c
-				break

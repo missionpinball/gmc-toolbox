@@ -42,8 +42,8 @@ func _enter_tree() -> void:
 	window.content_scale_size = scene.size
 	window.unresizable = false
 	window.title = "MPF Monitor - %s" % ProjectSettings.get_setting("application/config/name")
-	var icon = Image.load_from_file("res://addons/mpf-show-creator/icons/icon-osx.png")
-	DisplayServer.set_icon(icon)
+	var icon = preload("../icons/icon-osx.png")
+	DisplayServer.set_icon(icon.get_image())
 
 func _ready():
 	server.switch.connect(self._on_switch)

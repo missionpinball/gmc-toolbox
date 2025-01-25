@@ -17,4 +17,6 @@ func _enter_tree() -> void:
 			break
 		parent = parent.get_parent()
 	# Prevent GMC from blocking inputs to allow switch presses
-	MPF.ignore_input()
+	# (if GMC is installed as an autoload in this project)
+	if get_tree().get_root().get_node("MPF"):
+		MPF.ignore_input()

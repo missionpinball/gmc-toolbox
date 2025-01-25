@@ -132,7 +132,7 @@ func listen() -> void:
 	st = _client.get_status()
 	if st == StreamPeerTCP.STATUS_CONNECTED:
 		self.status = ServerStatus.CONNECTED
-		print("Connected!")
+		print("Connected to MPF!")
 		# Core MPF events
 		_send("monitor_start?category=modes")
 		_send("monitor_start?category=player_vars")
@@ -155,7 +155,7 @@ func disconnect_client():
 ###
 
 func _send(message: String) -> void:
-	if not _client:
+	if not _client or _client.get_status() != StreamPeerTCP.Status.STATUS_CONNECTED:
 		return
 	print("Sending: %s" % message)
 	_client.put_data(("%s\n" % message).to_ascii_buffer())

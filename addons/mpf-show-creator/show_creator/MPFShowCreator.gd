@@ -1,4 +1,3 @@
-@tool
 extends AspectRatioContainer
 class_name MPFShowCreator
 
@@ -9,7 +8,7 @@ const CONFIG_PATH = "res://mpf_show_creator.cfg"
 var _light_color: Color
 
 ## An AnimationPlayer node containing the animations to render as shows.
-@export var animation_player: AnimationPlayer
+var animation_player: AnimationPlayer
 ## Color to modulate the light icons
 @export var lights_color: Color = Color(0.3, 0.3, 0.3, 1.0):
 	set(value):
@@ -33,6 +32,7 @@ var strip_empty_times
 var use_alpha
 var fps
 var playfield_scene: Node
+var show_yaml_path: String
 
 var preview: Dictionary
 var render_animation: bool = false
@@ -45,15 +45,23 @@ func _enter_tree():
 		assert(false, "Error loading config file: %s" % err)
 		return
 
+	if not config.has_section("show_creator"):
+		assert(false, "Config file has no show creator section")
+		return
+
 	var scene_path = config.get_value("show_creator", "show_scene")
 	playfield_scene = load(scene_path).instantiate()
 	self.add_child(playfield_scene)
 	if self.name == "MPFShowCreator":
 		render_animation = true
+		show_yaml_path = config.get_value("show_creator", "show_yaml_path", false)
+		assert(show_yaml_path, "Config missing show YAML path")
+		assert(DirAccess.dir_exists_absolute(show_yaml_path), "Show YAML path %s does not exist" % show_yaml_path)
 	if not render_animation:
+		print("No render animaiton")
 		return
 
-	if config.has_section("show_creator") and config.has_section_key("show_creator", "animation"):
+	if config.has_section_key("show_creator", "animation"):
 			animation_name = config.get_value("show_creator", "animation")
 
 	fps = config.get_value("show_creator", "fps", 30)
@@ -62,14 +70,20 @@ func _enter_tree():
 	use_alpha = config.get_value("show_creator", "use_alpha", false)
 	tags = config.get_value("tags", animation_name, [])
 
+	var window = get_window()
+	# self.size = playfield_scene.size
+	window.size = playfield_scene.size
+	window.content_scale_size = playfield_scene.size
+	window.unresizable = true
+	window.title = "MPF Show Creator - %s" % ProjectSettings.get_setting("application/config/name")
+	window.transparent_bg = true
+	print("Setting window size to: %s" % window.size)
+
+	# Hide the playfield texture
+	playfield_scene.texture = null
 
 func _ready():
 	set_process(false)
-
-	var window = get_window()
-	window.size = playfield_scene.size
-	window.unresizable = true
-	window.title = "MPF Show Creator - %s" % ProjectSettings.get_setting("application/config/name")
 
 	if not render_animation:
 		return
@@ -79,9 +93,6 @@ func _ready():
 	animation_player = self.playfield_scene.animation_player
 	assert(animation_player, "No AnimationPlayer node attached to the GMCPlayfield root.")
 	assert(animation_player.has_animation(animation_name), "AnimationPlayer has no animation named '%s'" % animation_name)
-
-	# ProjectSettings.set_setting("display/window/size/window_width_override", self.playfield_scene.size.x)
-	# ProjectSettings.set_setting("display/window/size/window_height_override", self.playfield_scene.size.y)
 
 
 	if not self.lights:
@@ -93,7 +104,8 @@ func _ready():
 	self.spf = 1.0 / self.fps
 	self.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 
-	self.file_path = "%s/%s.yaml" % [OS.get_user_data_dir(), animation_name]
+	self.file_path = "%s/%s.yaml" % [show_yaml_path, animation_name]
+	print("Looking for file path %s" % self.file_path)
 	self.file = FileAccess.open(self.file_path, FileAccess.WRITE)
 	self.file.store_line("#show_version=6")
 
@@ -106,6 +118,7 @@ func _ready():
 	self.animation_player.advance(0)
 	self.animation_player.animation_finished.connect(self.on_animation_finished)
 
+	# PAUSE
 	self._run_animation()
 
 func _run_animation():
@@ -122,7 +135,7 @@ func _run_animation():
 		self.animation_player.advance(self.spf)
 
 func register_light(light: GMCLight):
-	print("Light %s has position %s" % [light, light.position])
+	print("Light %s has position %s on scene size %s" % [light, light.position, self.playfield_scene.size])
 	if light.position.x < 0 or light.position.y < 0 or light.position.x > self.playfield_scene.size.x or light.position.y > self.playfield_scene.size.y:
 		# In the editor, include all lights
 		if not Engine.is_editor_hint():
@@ -155,7 +168,7 @@ func register_switch(switch: GMCSwitch):
 	self.switches.append(switch)
 
 func snapshot():
-	var tex := get_viewport().get_texture().get_image()
+	var tex := get_window().get_texture().get_image()
 	var timestamp = self.animation_player.current_animation_position
 	var light_lines := []
 	var preview_dict = {}
@@ -176,6 +189,7 @@ func snapshot():
 
 func on_animation_finished(_animation_name=null):
 	self.finish()
+	pass
 
 func finish():
 	set_process(false)

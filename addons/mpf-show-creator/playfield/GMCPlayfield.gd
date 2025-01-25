@@ -6,10 +6,6 @@ class_name GMCPlayfield
 var lights = {}
 var switches = {}
 
-func _init() -> void:
-	print("INITIAOLIZING PLAYFIELD at %s" % self.size)
-	print(self.get_children())
-
 func _enter_tree() -> void:
 	var parent = self.get_parent()
 	while parent:

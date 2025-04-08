@@ -42,7 +42,7 @@ func _enter_tree():
 	config = ConfigFile.new()
 	var err = config.load(CONFIG_PATH)
 	if err != OK and err != ERR_FILE_NOT_FOUND:
-		assert(false, "Error loading config file: %s" % err)
+		printerr("Error loading config file '%s': %s" % [CONFIG_PATH, error_string(err)])
 		return
 
 	if not config.has_section("show_creator"):

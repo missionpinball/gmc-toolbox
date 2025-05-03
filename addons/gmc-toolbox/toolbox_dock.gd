@@ -87,6 +87,10 @@ func _generate(group, parent_node: Control = null):
 			parent_node.add_child(item_child)
 			item_child.owner = scene
 		# Tags may have changed, so set that even on existing lights
+		if item_child.global_position == Vector2(-1,-1):
+			debug_log("Trying to set postion from config file")
+			item_child.restore(self[group][i])
+
 		item_child.tags = self[group][i].tags
 
 	debug_log("Added %s %s to the scene %s" % [parent_node.get_child_count(), group, edit_playfield_scene.text])
@@ -254,7 +258,7 @@ func parse_mpf_config(section_name: String):
 			if indent_check == 0:
 				current_item = line_data[0]
 				debug_log(" - Found a %s '%s'" % [section_name, current_item])
-				collection[current_item] = { "tags": []}
+				collection[current_item] = { "tags": [], "position": Vector2(-1, -1)}
 			# If the check is larger, there is more than a delimiter and this is part of the item
 			elif indent_check > 0:
 				# Clear out any inline comments and extra whitespace
@@ -266,6 +270,10 @@ func parse_mpf_config(section_name: String):
 							self.tags[tag] = []
 						self.tags[tag].append(current_item)
 						collection[current_item]["tags"].append(tag)
+				if line_data[0] == "x":
+					collection[current_item]["position"].x = float(line_data[1])
+				if line_data[0] == "y":
+					collection[current_item]["position"].y = float(line_data[1])
 			# If the check is smaller, there is less than a delimiter and we are done with this section
 			else:
 				is_in_section = false

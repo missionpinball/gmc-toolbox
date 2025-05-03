@@ -5,9 +5,8 @@ const CONFIG_PATH = "res://gmc_toolbox.cfg"
 const DEFAULT_SHOW =  "res://show_creator.tscn"
 
 var config: ConfigFile
-var lights: = {}
-var switches: = {}
-var tags: = {}
+var lights: = []
+var tags: = []
 var verbose: bool = true
 
 @onready var edit_fps = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/container_fps/edit_fps
@@ -15,7 +14,12 @@ var verbose: bool = true
 @onready var button_strip_times = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_strip_times
 @onready var button_use_alpha = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_use_alpha
 @onready var button_verbose = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_verbose
-
+@onready var button_open_folder = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_open_folder
+@onready var button_show_scene = $MainVContainer/TopHContainer/LeftVContainer/container_show_scene/button_show_scene
+@onready var edit_show_scene = $MainVContainer/TopHContainer/LeftVContainer/container_show_scene/edit_show_scene
+@onready var button_show_output = $MainVContainer/TopHContainer/LeftVContainer/container_show_output/button_show_output
+@onready var edit_show_output = $MainVContainer/TopHContainer/LeftVContainer/container_show_output/edit_show_output
+@onready var button_refresh_lights = $MainVContainer/TopHContainer/LeftVContainer/container_generators/button_generate_lights
 @onready var button_refresh_animations = $MainVContainer/TopHContainer/LeftVContainer/container_generators/button_refresh_animations
 
 @onready var tags_container = $MainVContainer/TopHContainer/CenterVContainer/ScrollContainer/tag_checks
@@ -32,12 +36,15 @@ func _ready():
 	if err != OK and err != ERR_FILE_NOT_FOUND:
 		printerr("Error loading config file '%s': %s" % [CONFIG_PATH, error_string(err)])
 
+
 	if self.config.has_section("show_creator"):
 		if self.config.has_section_key("show_creator", "verbose"):
 			button_verbose.button_pressed = self.config.get_value("show_creator", "verbose")
 			verbose = button_verbose.button_pressed
+		if self.config.has_section_key("show_creator", "open_folder"):
+			button_open_folder.button_pressed = self.config.get_value("show_creator", "open_folder", true)
 		if self._get_playfield_scene():
-			self._get_animation_names()
+			self._load_lights()
 		if self.config.has_section_key("show_creator", "strip_lights"):
 			button_strip_lights.button_pressed = self.config.get_value("show_creator", "strip_lights", true)
 		if self.config.has_section_key("show_creator", "strip_times"):
@@ -45,11 +52,33 @@ func _ready():
 		if self.config.has_section_key("show_creator", "use_alpha"):
 			button_use_alpha.button_pressed = self.config.get_value("show_creator", "use_alpha", false)
 
+
+		if self.config.has_section_key("show_creator", "show_scene"):
+			var scene_path = self.config.get_value("show_creator", "show_scene")
+			if FileAccess.file_exists(scene_path):
+				edit_show_scene.text = scene_path
+				debug_log("Found Show Scene '%s'" % edit_show_scene.text)
+			else:
+				self._save_show_scene("")
+
+		if self.config.has_section_key("show_creator", "show_yaml_path"):
+			var show_output_path = self.config.get_value("show_creator", "show_yaml_path")
+			if FileAccess.file_exists(show_output_path):
+				edit_show_output.text = show_output_path
+				debug_log("Found Show Output Path '%s'" % edit_show_output.text)
+			else:
+				self._save_show_output("")
+
 	# Set the listeners *after* the initial values are set
 	button_show_maker.pressed.connect(self._generate_show)
 	button_preview_show.pressed.connect(self._preview_show)
 	animation_dropdown.item_selected.connect(self._select_animation)
+	button_refresh_lights.pressed.connect(self._load_lights)
 	button_refresh_animations.pressed.connect(self._get_animation_names)
+	button_show_scene.pressed.connect(self._select_show_scene)
+	button_show_output.pressed.connect(self._select_show_output)
+	edit_show_scene.text_submitted.connect(self._save_show_scene)
+	edit_show_output.text_submitted.connect(self._save_show_output)
 
 	# Tags
 	button_tags_select_all.pressed.connect(self._select_all_tags)
@@ -60,8 +89,10 @@ func _ready():
 	button_strip_times.toggled.connect(self._on_option.bind("strip_times"))
 	button_use_alpha.toggled.connect(self._on_option.bind("use_alpha"))
 	button_verbose.toggled.connect(self._on_option.bind("verbose"))
+	button_open_folder.toggled.connect(self._on_option.bind("open_folder"))
 
 	button_show_maker.disabled = animation_dropdown.item_count == 0
+
 
 # func _save_light_positions():
 # 	EditorInterface.save_scene()
@@ -92,6 +123,61 @@ func _ready():
 # 		self.config.set_value("lights", l, settings)
 # 	self.config.save(CONFIG_PATH)
 
+func _load_lights():
+
+	self.lights = []
+	self.tags = []
+	var scene = load(edit_show_scene.text).instantiate()
+	# Look for a lights child node
+	var lights_node = scene.get_node_or_null("lights")
+	if not lights_node:
+		debug_log("No lights node in show scene")
+		return
+
+	for child_light in lights_node.get_children():
+		if child_light is GMCLight:
+			self.lights.append(child_light)
+			for tag in child_light.tags:
+				if not self.tags.has(tag):
+					self.tags.append(tag)
+
+	for child in tags_container.get_children():
+		child.queue_free()
+	for tag in self.tags:
+		var tag_box = CheckBox.new()
+		tag_box.text = tag
+		tag_box.toggled.connect(self._save_tags)
+		tags_container.add_child(tag_box)
+
+	self._get_animation_names()
+
+func _select_show_scene():
+	var dialog = FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dialog.access = FileDialog.ACCESS_RESOURCES
+	self.add_child(dialog)
+	dialog.popup_centered(Vector2i(1100, 900))
+	var path = await dialog.file_selected
+	self._save_show_scene(path)
+
+func _select_show_output() -> void:
+	var dialog := FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
+	dialog.access = FileDialog.ACCESS_FILESYSTEM
+	self.add_child(dialog)
+	dialog.popup_centered(Vector2i(1100, 900))
+	var path = await dialog.dir_selected
+	self._save_show_output(path)
+
+func _save_show_scene(path):
+	self.config.set_value("show_creator", "show_scene", path)
+	edit_show_scene.text = path
+	self.config.save(CONFIG_PATH)
+
+func _save_show_output(path):
+	self.config.set_value("show_creator", "show_yaml_path", path)
+	edit_show_output.text = path
+	self.config.save(CONFIG_PATH)
 
 func _generate_show():
 	EditorInterface.play_custom_scene("res://addons/gmc-toolbox/show_creator/mpf_show_creator.tscn")
@@ -173,16 +259,6 @@ func _save_tags(_toggle_state=false):
 	elif self.config.has_section_key("tags", animation_name):
 		self.config.erase_section_key("tags", animation_name)
 	self.config.save(CONFIG_PATH)
-
-# func _select_show_scene():
-# 	var dialog = FileDialog.new()
-# 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-# 	dialog.access = FileDialog.ACCESS_RESOURCES
-# 	self.add_child(dialog)
-# 	dialog.popup_centered(Vector2i(1100, 900))
-# 	var path = await dialog.file_selected
-# 	self._save_show_scene(path)
-
 
 func _on_option(pressed, opt_name):
 	self.config.set_value("show_creator", opt_name, pressed)

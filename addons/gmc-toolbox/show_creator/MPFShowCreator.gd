@@ -54,15 +54,16 @@ func _enter_tree():
 	self.add_child(playfield_scene)
 	if self.name == "MPFShowCreator":
 		render_animation = true
-		show_yaml_path = config.get_value("show_creator", "show_yaml_path", false)
-		assert(show_yaml_path, "Config missing show YAML path")
-		assert(DirAccess.dir_exists_absolute(show_yaml_path), "Show YAML path %s does not exist" % show_yaml_path)
+		var show_output_yaml_path: Variant = config.get_value("show_creator", "show_yaml_path", false)
+		assert(show_output_yaml_path, "Config missing show YAML path")
+		assert(DirAccess.dir_exists_absolute(show_output_yaml_path), "Show YAML path %s does not exist" % show_output_yaml_path)
+		self.show_yaml_path = show_output_yaml_path
 	if not render_animation:
 		print("No render animaiton")
 		return
 
 	if config.has_section_key("show_creator", "animation"):
-			animation_name = config.get_value("show_creator", "animation")
+		animation_name = config.get_value("show_creator", "animation")
 
 	fps = config.get_value("show_creator", "fps", 30)
 	strip_unchanged_lights = config.get_value("show_creator", "strip_lights", true)
@@ -93,7 +94,6 @@ func _ready():
 	animation_player = self.playfield_scene.animation_player
 	assert(animation_player, "No AnimationPlayer node attached to the GMCPlayfield root.")
 	assert(animation_player.has_animation(animation_name), "AnimationPlayer has no animation named '%s'" % animation_name)
-
 
 	if not self.lights:
 		if self.tags:
@@ -135,7 +135,7 @@ func _run_animation():
 		self.animation_player.advance(self.spf)
 
 func register_light(light: GMCLight):
-	print("Light %s has position %s on scene size %s" % [light, light.position, self.playfield_scene.size])
+	#print("Light %s has position %s on scene size %s" % [light, light.position, self.playfield_scene.size])
 	if light.position.x < 0 or light.position.y < 0 or light.position.x > self.playfield_scene.size.x or light.position.y > self.playfield_scene.size.y:
 		# In the editor, include all lights
 		if not Engine.is_editor_hint():
@@ -197,5 +197,8 @@ func finish():
 	for key in self.preview.keys():
 		self.config.set_value("preview", key, self.preview[key])
 	self.config.save(CONFIG_PATH)
-	OS.shell_show_in_file_manager(self.file_path)
+	var open_containing_folder: bool = config.get_value("show_creator", "open_folder", true)
+	if open_containing_folder:
+		OS.shell_show_in_file_manager(ProjectSettings.globalize_path(file_path))
+
 	get_tree().quit()

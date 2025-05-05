@@ -87,6 +87,10 @@ func _generate(group, parent_node: Control = null):
 			parent_node.add_child(item_child)
 			item_child.owner = scene
 		# Tags may have changed, so set that even on existing lights
+		if item_child.global_position == Vector2(-1,-1):
+			debug_log("Trying to set postion from config file")
+			item_child.restore(self[group][i])
+
 		item_child.tags = self[group][i].tags
 
 	debug_log("Added %s %s to the scene %s" % [parent_node.get_child_count(), group, edit_playfield_scene.text])
@@ -183,14 +187,18 @@ func _generate_scene():
 
 
 func _select_mpf_config(section: String):
-	push_error("Select MPF config for %s" % section)
+	debug_log("Select MPF config for %s" % section)
 	var dialog = FileDialog.new()
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_FILESYSTEM
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.file_selected
-	self._save_mpf_config(path, section)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.file_selected.connect(func(path):
+		self._save_mpf_config(path, section)
+		dialog.queue_free()
+	)
+
 
 func _save_mpf_config(path, section):
 	self.config.set_value("show_creator", "mpf_%s_config" % section, path)
@@ -204,9 +212,12 @@ func _select_playfield_scene():
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_RESOURCES
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.file_selected
-	self._save_playfield_scene(path)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.file_selected.connect(func(path):
+		self._save_playfield_scene(path)
+		dialog.queue_free()
+	)
 
 func _save_playfield_scene(path):
 	self.config.set_value("show_creator", "playfield_scene", path)
@@ -254,7 +265,7 @@ func parse_mpf_config(section_name: String):
 			if indent_check == 0:
 				current_item = line_data[0]
 				debug_log(" - Found a %s '%s'" % [section_name, current_item])
-				collection[current_item] = { "tags": []}
+				collection[current_item] = { "tags": [], "position": Vector2(-1, -1)}
 			# If the check is larger, there is more than a delimiter and this is part of the item
 			elif indent_check > 0:
 				# Clear out any inline comments and extra whitespace
@@ -266,6 +277,10 @@ func parse_mpf_config(section_name: String):
 							self.tags[tag] = []
 						self.tags[tag].append(current_item)
 						collection[current_item]["tags"].append(tag)
+				if line_data[0] == "x":
+					collection[current_item]["position"].x = float(line_data[1])
+				if line_data[0] == "y":
+					collection[current_item]["position"].y = float(line_data[1])
 			# If the check is smaller, there is less than a delimiter and we are done with this section
 			else:
 				is_in_section = false

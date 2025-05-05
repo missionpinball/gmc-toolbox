@@ -156,18 +156,24 @@ func _select_show_scene():
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_RESOURCES
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.file_selected
-	self._save_show_scene(path)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.file_selected.connect(func(path):
+		self._save_show_scene(path)
+		dialog.queue_free()
+	)
 
 func _select_show_output() -> void:
 	var dialog := FileDialog.new()
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
 	dialog.access = FileDialog.ACCESS_FILESYSTEM
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.dir_selected
-	self._save_show_output(path)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.dir_selected.connect(func(path):
+		self._save_show_output(path)
+		dialog.queue_free()
+	)
 
 func _save_show_scene(path):
 	self.config.set_value("show_creator", "show_scene", path)

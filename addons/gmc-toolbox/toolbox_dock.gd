@@ -192,9 +192,13 @@ func _select_mpf_config(section: String):
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_FILESYSTEM
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.file_selected
-	self._save_mpf_config(path, section)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.file_selected.connect(func(path):
+		self._save_mpf_config(path, section)
+		dialog.queue_free()
+	)
+
 
 func _save_mpf_config(path, section):
 	self.config.set_value("show_creator", "mpf_%s_config" % section, path)
@@ -208,9 +212,12 @@ func _select_playfield_scene():
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_RESOURCES
 	self.add_child(dialog)
-	dialog.popup_centered(Vector2i(1100, 900))
-	var path = await dialog.file_selected
-	self._save_playfield_scene(path)
+	dialog.popup_centered(get_viewport().size * .5)
+	dialog.canceled.connect(func(): dialog.queue_free())
+	dialog.file_selected.connect(func(path):
+		self._save_playfield_scene(path)
+		dialog.queue_free()
+	)
 
 func _save_playfield_scene(path):
 	self.config.set_value("show_creator", "playfield_scene", path)

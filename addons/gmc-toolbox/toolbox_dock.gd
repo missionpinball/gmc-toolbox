@@ -187,7 +187,7 @@ func _generate_scene():
 
 
 func _select_mpf_config(section: String):
-	push_error("Select MPF config for %s" % section)
+	debug_log("Select MPF config for %s" % section)
 	var dialog = FileDialog.new()
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_FILESYSTEM

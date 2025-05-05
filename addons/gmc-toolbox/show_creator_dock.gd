@@ -142,7 +142,9 @@ func _load_lights():
 					self.tags.append(tag)
 
 	for child in tags_container.get_children():
+		tags_container.remove_child(child)
 		child.queue_free()
+
 	for tag in self.tags:
 		var tag_box = CheckBox.new()
 		tag_box.text = tag

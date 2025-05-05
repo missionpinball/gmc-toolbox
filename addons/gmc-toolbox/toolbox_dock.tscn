@@ -51,7 +51,7 @@ text = "MPF lights: Config File"
 [node name="edit_mpf_lights_config" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "C:/Users/carr-/Documents/development/darkchaos/glf_mpf/config/lights.yaml"
+text = ""
 placeholder_text = "No File Selected"
 
 [node name="button_mpf_lights_config" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_lights_config"]
@@ -68,7 +68,7 @@ text = "MPF switches: Config File"
 [node name="edit_mpf_switches_config" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_switches_config"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "C:/Users/carr-/Documents/development/darkchaos/glf_mpf/config/switches.yaml"
+text = ""
 placeholder_text = "No File Selected"
 
 [node name="button_mpf_switches_config" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_mpf_switches_config"]
@@ -85,7 +85,7 @@ text = "GMCPlayfield Scene"
 [node name="edit_playfield_scene" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "res://monitor/playfield.tscn"
+text = ""
 placeholder_text = "No Scene Selected"
 
 [node name="button_playfield_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_playfield_scene"]

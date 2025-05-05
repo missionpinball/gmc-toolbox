@@ -54,7 +54,7 @@ text = "ShowCreator Scene"
 [node name="edit_show_scene" type="LineEdit" parent="MainVContainer/TopHContainer/LeftVContainer/container_show_scene"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "res://monitor/playfield.tscn"
+text = ""
 placeholder_text = "No Scene Selected"
 
 [node name="button_show_scene" type="Button" parent="MainVContainer/TopHContainer/LeftVContainer/container_show_scene"]

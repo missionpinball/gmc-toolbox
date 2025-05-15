@@ -20,3 +20,9 @@ func _enter_tree() -> void:
 	# (if GMC is installed as an autoload in this project)
 	if get_tree().get_root().get_node("MPF"):
 		MPF.ignore_input()
+	#Add all the GMC Lights to the lights dict
+	var lights_node = get_node("lights")
+	if lights_node:
+		for child in lights_node.get_children():
+			if child is GMCLight:
+				self.lights[child.name] = child

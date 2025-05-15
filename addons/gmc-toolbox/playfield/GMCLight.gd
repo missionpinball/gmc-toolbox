@@ -55,11 +55,11 @@ func restore(props):
 		ProjectSettings.get_setting("display/window/size/viewport_height"))
 	# Legacy support
 	if props is Vector2 and props != Vector2(-1,-1):
-		self.global_position = props * global_space
+		self.position = props * global_space
 		return
 	if props.has("position"):
 		if props["position"] != Vector2(-1,-1):
-			self.global_position = props["position"] * global_space
+			self.position = props["position"] * global_space
 	if props.has("scale"):
 		self.scale = props["scale"]
 	if props.has("rotation_degrees"):
@@ -72,14 +72,15 @@ func set_color(color: Color):
 	self.modulate = color
 
 func get_color(data: Image, suppress_unchanged: bool = false):
-	var color = data.get_pixelv(self.global_position)
+	var color = data.get_pixelv(self.position)
+	print("The color at (%s) is: %s" % [self.position, color])
 	if color == current_color and suppress_unchanged:
 		return null
 	current_color = color
 	return color
 
 func _get_configuration_warnings():
-	if self.global_position == Vector2(-1, -1):
+	if self.position == Vector2(-1, -1):
 		return ["Light has not been positioned."]
 	return []
 

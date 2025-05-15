@@ -49,7 +49,7 @@ func _enter_tree():
 		assert(false, "Config file has no show creator section")
 		return
 
-	var scene_path = config.get_value("show_creator", "show_scene")
+	var scene_path = config.get_value("show_creator", "playfield_scene")
 	playfield_scene = load(scene_path).instantiate()
 	self.add_child(playfield_scene)
 	if self.name == "MPFShowCreator":
@@ -77,11 +77,16 @@ func _enter_tree():
 	window.content_scale_size = playfield_scene.size
 	window.unresizable = true
 	window.title = "MPF Show Creator - %s" % ProjectSettings.get_setting("application/config/name")
-	window.transparent_bg = true
+	window.transparent_bg = false
 	print("Setting window size to: %s" % window.size)
 
 	# Hide the playfield texture
-	playfield_scene.texture = null
+	var black_image := Image.create(playfield_scene.size.x, playfield_scene.size.y, false, Image.FORMAT_RGBA8)
+	black_image.fill(Color.BLACK)
+	var black_texture := ImageTexture.create_from_image(black_image)
+
+	playfield_scene.texture = black_texture
+	#playfield_scene.texture = null
 
 func _ready():
 	set_process(false)

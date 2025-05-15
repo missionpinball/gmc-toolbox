@@ -54,11 +54,12 @@ func restore(props):
 		ProjectSettings.get_setting("display/window/size/viewport_width"),
 		ProjectSettings.get_setting("display/window/size/viewport_height"))
 	# Legacy support
-	if props is Vector2:
+	if props is Vector2 and props != Vector2(-1,-1):
 		self.global_position = props * global_space
 		return
 	if props.has("position"):
-		self.global_position = props["position"] * global_space
+		if props["position"] != Vector2(-1,-1):
+			self.global_position = props["position"] * global_space
 	if props.has("scale"):
 		self.scale = props["scale"]
 	if props.has("rotation_degrees"):

@@ -63,7 +63,7 @@ func _ready():
 
 		if self.config.has_section_key("show_creator", "show_yaml_path"):
 			var show_output_path = self.config.get_value("show_creator", "show_yaml_path")
-			if FileAccess.file_exists(show_output_path):
+			if DirAccess.dir_exists_absolute(show_output_path):
 				edit_show_output.text = show_output_path
 				debug_log("Found Show Output Path '%s'" % edit_show_output.text)
 			else:

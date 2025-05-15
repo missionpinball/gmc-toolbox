@@ -73,7 +73,6 @@ func set_color(color: Color):
 
 func get_color(data: Image, suppress_unchanged: bool = false):
 	var color = data.get_pixelv(self.position)
-	print("The color at (%s) is: %s" % [self.position, color])
 	if color == current_color and suppress_unchanged:
 		return null
 	current_color = color

@@ -31,7 +31,7 @@ var strip_unchanged_lights
 var strip_empty_times
 var use_alpha
 var fps
-var playfield_scene: Node
+var playfield_scene: GMCPlayfield
 var show_yaml_path: String
 
 var preview: Dictionary

@@ -6,13 +6,12 @@ const LOOP_SHOW_DELAY_SECS = 1.0
 
 var config: ConfigFile
 var animation_name: String
-var scene: MPFShowCreator
+var scene: GMCPlayfield
 var time := 0.0
 
 var duration: float
 var timestamps: Array
 var light_steps: Array
-var lights: Dictionary = {}
 
 var step_idx := 0
 var next_timestamp: float = 0.0
@@ -30,7 +29,7 @@ func _enter_tree():
 	light_steps = config.get_value("preview", "light_steps")
 	duration = config.get_value("preview", "duration")
 	animation_name = config.get_value("preview", "show")
-	var scene_path = config.get_value("show_creator", "show_scene")
+	var scene_path = config.get_value("show_creator", "playfield_scene")
 	scene = load(scene_path).instantiate()
 	self.add_child(scene)
 
@@ -39,13 +38,13 @@ func _enter_tree():
 
 func _ready():
 	# Create a dictionary to quickly look up lights
-	for l in scene.lights:
-		self.lights[l.name] = l
+	for l in scene.lights.values():
 		l.visible = true
 		# Even lights not used in this show should be cleared
-		l.set_color(Color(0,0,0,0))
+		l.set_color(Color(0,0,0,1))
 
 func _process(delta):
+
 	time = time + delta
 	if time < next_timestamp:
 		return
@@ -62,7 +61,7 @@ func _process(delta):
 func populate_step(idx: int):
 	var step_lights = light_steps[idx]
 	for light_name in step_lights.keys():
-		self.lights[light_name].set_color(step_lights[light_name])
+		scene.lights[light_name].set_color(step_lights[light_name])
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_class("InputEventKey"):

@@ -15,8 +15,6 @@ var verbose: bool = true
 @onready var button_use_alpha = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_use_alpha
 @onready var button_verbose = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_verbose
 @onready var button_open_folder = $MainVContainer/TopHContainer/LeftVContainer/BottomFContainer/button_open_folder
-@onready var button_show_scene = $MainVContainer/TopHContainer/LeftVContainer/container_show_scene/button_show_scene
-@onready var edit_show_scene = $MainVContainer/TopHContainer/LeftVContainer/container_show_scene/edit_show_scene
 @onready var button_show_output = $MainVContainer/TopHContainer/LeftVContainer/container_show_output/button_show_output
 @onready var edit_show_output = $MainVContainer/TopHContainer/LeftVContainer/container_show_output/edit_show_output
 @onready var button_refresh_lights = $MainVContainer/TopHContainer/LeftVContainer/container_generators/button_generate_lights
@@ -52,18 +50,9 @@ func _ready():
 		if self.config.has_section_key("show_creator", "use_alpha"):
 			button_use_alpha.button_pressed = self.config.get_value("show_creator", "use_alpha", false)
 
-
-		if self.config.has_section_key("show_creator", "show_scene"):
-			var scene_path = self.config.get_value("show_creator", "show_scene")
-			if FileAccess.file_exists(scene_path):
-				edit_show_scene.text = scene_path
-				debug_log("Found Show Scene '%s'" % edit_show_scene.text)
-			else:
-				self._save_show_scene("")
-
 		if self.config.has_section_key("show_creator", "show_yaml_path"):
 			var show_output_path = self.config.get_value("show_creator", "show_yaml_path")
-			if FileAccess.file_exists(show_output_path):
+			if DirAccess.dir_exists_absolute(show_output_path):
 				edit_show_output.text = show_output_path
 				debug_log("Found Show Output Path '%s'" % edit_show_output.text)
 			else:
@@ -75,9 +64,7 @@ func _ready():
 	animation_dropdown.item_selected.connect(self._select_animation)
 	button_refresh_lights.pressed.connect(self._load_lights)
 	button_refresh_animations.pressed.connect(self._get_animation_names)
-	button_show_scene.pressed.connect(self._select_show_scene)
 	button_show_output.pressed.connect(self._select_show_output)
-	edit_show_scene.text_submitted.connect(self._save_show_scene)
 	edit_show_output.text_submitted.connect(self._save_show_output)
 
 	# Tags
@@ -93,45 +80,15 @@ func _ready():
 
 	button_show_maker.disabled = animation_dropdown.item_count == 0
 
-
-# func _save_light_positions():
-# 	EditorInterface.save_scene()
-# 	var global_space = Vector2(
-# 		ProjectSettings.get_setting("display/window/size/viewport_width"),
-# 		ProjectSettings.get_setting("display/window/size/viewport_height"))
-# 	debug_log("Setting light positions on a %s x %s plane" % [global_space.x, global_space.y])
-
-# 	var scene = load(edit_show_scene.text).instantiate()
-# 	for l in self.lights.keys():
-# 		var light = scene.find_child(l)
-# 		debug_log("Checking light %s with node %s" % [l, light])
-# 		if not light:
-# 			push_warning("Light '%s' not found in scene" % l)
-# 			continue
-# 		if light.global_position == Vector2(-1, -1):
-# 			debug_log("Light '%s' has not been positioned." % l)
-# 			if self.config.has_section("lights") and self.config.has_section_key("lights", l):
-# 				self.config.erase_section_key("lights", l)
-# 			continue
-# 		var settings = {
-# 			"position": light.global_position / global_space,
-# 			"shape": light.shape,
-# 			"scale": light.scale,
-# 			"rotation_degrees": light.rotation_degrees,
-# 			"tags": self.lights[l]["tags"]
-# 		}
-# 		self.config.set_value("lights", l, settings)
-# 	self.config.save(CONFIG_PATH)
-
 func _load_lights():
 
 	self.lights = []
 	self.tags = []
-	var scene = load(edit_show_scene.text).instantiate()
+	var scene = self._get_playfield_scene()
 	# Look for a lights child node
 	var lights_node = scene.get_node_or_null("lights")
 	if not lights_node:
-		debug_log("No lights node in show scene")
+		debug_log("No lights node in playfield scene")
 		return
 
 	for child_light in lights_node.get_children():
@@ -153,18 +110,6 @@ func _load_lights():
 
 	self._get_animation_names()
 
-func _select_show_scene():
-	var dialog = FileDialog.new()
-	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-	dialog.access = FileDialog.ACCESS_RESOURCES
-	self.add_child(dialog)
-	dialog.popup_centered(get_viewport().size * .5)
-	dialog.canceled.connect(func(): dialog.queue_free())
-	dialog.file_selected.connect(func(path):
-		self._save_show_scene(path)
-		dialog.queue_free()
-	)
-
 func _select_show_output() -> void:
 	var dialog := FileDialog.new()
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
@@ -176,11 +121,6 @@ func _select_show_output() -> void:
 		self._save_show_output(path)
 		dialog.queue_free()
 	)
-
-func _save_show_scene(path):
-	self.config.set_value("show_creator", "show_scene", path)
-	edit_show_scene.text = path
-	self.config.save(CONFIG_PATH)
 
 func _save_show_output(path):
 	self.config.set_value("show_creator", "show_yaml_path", path)

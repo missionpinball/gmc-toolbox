@@ -77,16 +77,15 @@ func _enter_tree():
 	window.content_scale_size = playfield_scene.size
 	window.unresizable = true
 	window.title = "MPF Show Creator - %s" % ProjectSettings.get_setting("application/config/name")
-	window.transparent_bg = false
+	window.transparent_bg = true
 	print("Setting window size to: %s" % window.size)
 
-	# Hide the playfield texture
-	var black_image := Image.create(playfield_scene.size.x, playfield_scene.size.y, false, Image.FORMAT_RGBA8)
-	black_image.fill(Color.BLACK)
-	var black_texture := ImageTexture.create_from_image(black_image)
+	# Add an empty texture to the window to represent the playfield image.
+	var empty_image := Image.create(playfield_scene.size.x, playfield_scene.size.y, false, Image.FORMAT_RGBA8)
+	empty_image.fill(Color.TRANSPARENT)
+	var empty_texture := ImageTexture.create_from_image(empty_image)
 
-	playfield_scene.texture = black_texture
-	#playfield_scene.texture = null
+	playfield_scene.texture = empty_texture
 
 func _ready():
 	set_process(false)
@@ -181,6 +180,7 @@ func snapshot():
 		var c = l.get_color(tex, strip_unchanged_lights)
 		if c != null:
 			light_lines.append("    %s: \"%s\"" % [l.name, c.to_html(use_alpha)])
+			c.a = 1
 			preview_dict[l.name] = c
 	if light_lines or not strip_empty_times:
 		file.store_line("- time: %0.5f" % timestamp)

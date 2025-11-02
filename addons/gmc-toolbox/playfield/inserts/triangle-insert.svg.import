@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://eo8bnrtefoyr"
-path="res://.godot/imported/AnimatedTexture.svg-3fa58ed4ab83fd7e4034a67bfc61f304.ctex"
+uid="uid://bo5t48mw0l5d3"
+path="res://.godot/imported/triangle-insert.svg-d4bedb3bf9840d93a9c54ddb78b58f96.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/gmc-toolbox/icons/AnimatedTexture.svg"
-dest_files=["res://.godot/imported/AnimatedTexture.svg-3fa58ed4ab83fd7e4034a67bfc61f304.ctex"]
+source_file="res://addons/gmc-toolbox/playfield/inserts/triangle-insert.svg"
+dest_files=["res://.godot/imported/triangle-insert.svg-d4bedb3bf9840d93a9c54ddb78b58f96.ctex"]
 
 [params]
 

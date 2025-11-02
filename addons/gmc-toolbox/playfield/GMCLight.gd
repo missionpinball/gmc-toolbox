@@ -9,6 +9,8 @@ enum InsertShapes {
 	CIRCLE,
 	## A square with rounded corners
 	SQUARE,
+	## An equilateral triangle
+	TRIANGLE,
 	## An elongated (2:1) triangle
 	LONG_TRIANGLE,
 	## Attach your own Texture of choice
@@ -93,6 +95,8 @@ func scale_to_inches():
 			path += "/inserts/circle-insert.svg"
 		InsertShapes.SQUARE:
 			path += "/inserts/square-insert.svg"
+		InsertShapes.TRIANGLE:
+			path += "/inserts/triangle-insert.svg"
 		InsertShapes.LONG_TRIANGLE:
 			path += "/inserts/long-triangle-insert.svg"
 		InsertShapes.CUSTOM:

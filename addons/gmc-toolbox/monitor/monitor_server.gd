@@ -17,7 +17,7 @@ signal update_machine_var(name, value)
 signal update_modes(payload)
 
 # The port we will listen on
-var port := 5051
+var port := 5052
 # The polling frequency to poll the server for data
 var poll_fps: int = 120
 # The current status of the server
@@ -45,7 +45,7 @@ func _process(delta: float) -> void:
 	if time < 0.1:
 		return
 	time = 0.0
-
+	print("Poll server status is %s" % self.status)
 	if self.status != ServerStatus.CONNECTED:
 		self.listen()
 		return

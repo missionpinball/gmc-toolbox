@@ -10,7 +10,7 @@ func _enter_tree() -> void:
 	var parent = self.get_parent()
 	while parent:
 		if parent is MPFMonitor:
-			self.expand_mode = ExpandMode.EXPAND_IGNORE_SIZE
+			self.expand_mode = ExpandMode.EXPAND_FIT_WIDTH_PROPORTIONAL
 			break
 		if parent is MPFShowCreator or parent is MPFShowPreview:
 			self.expand_mode = ExpandMode.EXPAND_KEEP_SIZE

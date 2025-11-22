@@ -31,7 +31,7 @@ var strip_unchanged_lights
 var strip_empty_times
 var use_alpha
 var fps
-var playfield_scene: Node
+var playfield_scene: GMCPlayfield
 var show_yaml_path: String
 
 var preview: Dictionary
@@ -49,7 +49,7 @@ func _enter_tree():
 		assert(false, "Config file has no show creator section")
 		return
 
-	var scene_path = config.get_value("show_creator", "show_scene")
+	var scene_path = config.get_value("show_creator", "playfield_scene")
 	playfield_scene = load(scene_path).instantiate()
 	self.add_child(playfield_scene)
 	if self.name == "MPFShowCreator":
@@ -80,8 +80,12 @@ func _enter_tree():
 	window.transparent_bg = true
 	print("Setting window size to: %s" % window.size)
 
-	# Hide the playfield texture
-	playfield_scene.texture = null
+	# Add an empty texture to the window to represent the playfield image.
+	var empty_image := Image.create(playfield_scene.size.x, playfield_scene.size.y, false, Image.FORMAT_RGBA8)
+	empty_image.fill(Color.TRANSPARENT)
+	var empty_texture := ImageTexture.create_from_image(empty_image)
+
+	playfield_scene.texture = empty_texture
 
 func _ready():
 	set_process(false)
@@ -176,6 +180,7 @@ func snapshot():
 		var c = l.get_color(tex, strip_unchanged_lights)
 		if c != null:
 			light_lines.append("    %s: \"%s\"" % [l.name, c.to_html(use_alpha)])
+			c.a = 1
 			preview_dict[l.name] = c
 	if light_lines or not strip_empty_times:
 		file.store_line("- time: %0.5f" % timestamp)

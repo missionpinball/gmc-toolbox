@@ -33,6 +33,7 @@ func _ready():
             break
         parent = parent.get_parent()
     self.texture_normal = self.texture_inactive
+    _resize_to_fit_playfield()
 
 func _gui_input(event):
     if not event is InputEventMouseButton:
@@ -73,3 +74,34 @@ func set_switch_state(is_active: bool) -> void:
         self.modulate = base_color
         self.texture_normal = self.texture_inactive
     _switch_state = is_active
+
+func restore(props):
+    var global_space = Vector2(
+        ProjectSettings.get_setting("display/window/size/viewport_width"),
+        ProjectSettings.get_setting("display/window/size/viewport_height"))
+    # Legacy support
+    print(self.size)
+    if props is Vector2 and props != Vector2(-1,-1):
+        self.position = (props * global_space) - self.size / 2
+        return
+    if props.has("position"):
+        if props["position"] != Vector2(-1,-1):
+            print(self.size)
+            self.position = (props["position"] * global_space) - self.size / 2
+    if props.has("scale"):
+        self.scale = props["scale"]
+
+func _resize_to_fit_playfield():
+    if not Engine.is_editor_hint():
+        return
+    var playfield_width = get_viewport().size.x
+    var target_width = playfield_width / 40.0
+    print(target_width)
+    var tex_size = texture_normal.get_size()
+    if tex_size.x == 0:
+        return
+
+    var scale_factor = target_width / tex_size.x
+    self.scale = Vector2(scale_factor, scale_factor)
+    var visual_size = tex_size * scale_factor
+    self.position -= visual_size / 2.0

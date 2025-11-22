@@ -27,7 +27,6 @@ func _enter_tree() -> void:
 	self.add_child(scene)
 	server = preload("monitor_server.gd").new()
 	self.add_child(server)
-
 	# Everything from here on out is for runtime
 	if Engine.is_editor_hint():
 		return
@@ -54,8 +53,8 @@ func _ready():
 	server.update_modes.connect(self._update_modes)
 	server.player_added.connect(self._add_player)
 
-	for l in scene.lights.values():
-		l.set_color(Color(0.0,0.0,0.0))
+	#for l in scene.lights.values():
+	#	l.set_color(Color(0.0,0.0,0.0))
 
 func register_light(light: GMCLight):
 	self.lights[light.name] = light

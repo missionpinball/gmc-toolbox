@@ -23,6 +23,7 @@ var poll_fps: int = 120
 # The current status of the server
 var status: ServerStatus = ServerStatus.IDLE
 
+var socket_chars = ''
 # A connected MPF Client
 var _client: StreamPeerTCP
 # A timer to mitigate updates
@@ -60,7 +61,11 @@ func _process(delta: float) -> void:
 	if not bytes:
 		return
 
-	var messages := _client.get_string(bytes).split("\n")
+	socket_chars += _client.get_string(bytes)
+	var messages := socket_chars.split("\n")
+
+	socket_chars = messages[messages.size() - 1]
+	messages.resize(messages.size() - 1)
 	for message_raw in messages:
 		if message_raw.is_empty():
 			continue
@@ -68,7 +73,9 @@ func _process(delta: float) -> void:
 		var message: Dictionary = parse(message_raw)
 		# Log any errors
 		if message.has("error"):
+			printerr(message_raw)
 			printerr(message.error)
+			return
 
 		if message.cmd == "monitored_event":
 			message.cmd = message.event_name
@@ -118,8 +125,10 @@ func listen() -> void:
 		status_changed.emit(self.status)
 
 	var st = _client.get_status()
+
 	if st == StreamPeerTCP.STATUS_NONE:
-		var e = _client.connect_to_host("localhost", port)
+		print("Trying to connect to MPF...")
+		var e = _client.connect_to_host("127.0.0.1", port)
 		if e != OK:
 			_client.disconnect_from_host()
 			return
@@ -172,6 +181,7 @@ func parse(message: String) -> Dictionary:
 		result = string_to_obj(split_message[1], cmd)
 	else:
 		cmd = message
+
 	if cmd == "trigger":
 		# This creates a standard signal "mpf_timer" so any
 		# timer event doesn't need an individual signal
@@ -191,7 +201,7 @@ func string_to_obj(message: String, _cmd: String) -> Dictionary:
 	if message.substr(0, 5) == "json=":
 		var json = JSON.parse_string(message.substr(5))
 		if json == null:
-			result.error = "Error %s parsing trigger: %s" % [json.error, message]
+			result.error = "Error parsing trigger: %s" % [message]
 			return result
 		else:
 			return json

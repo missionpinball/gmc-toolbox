@@ -251,8 +251,13 @@ func parse_mpf_config(section_name: String):
 			line_stripped = line.get_slice("#", 0).strip_edges()
 			# ...unless the next line is blank or a comment
 			while not line_stripped:
+				# If for some reason the file ends, bail out
+				if mpf_config.get_position() >= mpf_config.get_length():
+					debug_log("Config file ended, config section '%s:' incomplete.")
+					return
 				line = mpf_config.get_line()
 				line_stripped = line.get_slice("#", 0).strip_edges()
+
 			var dedent = line.dedent()
 			delimiter_size = line.length() - dedent.length()
 			delimiter = line.substr(0, delimiter_size)
